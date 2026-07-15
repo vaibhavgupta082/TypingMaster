@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleek Typing Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1e1e24;
+            --text-main: #e0e0e6;
+            --text-muted: #75758a;
+            --accent: #00adb5;
+            --accent-hover: #008f95;
+            --border-color: #2d2d3d;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        /* The overall grid container holding the two separate blocks */
+        .app-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 30px;
+            width: 100%;
+            max-width: 1150px;
+            align-items: start;
+        }
+
+        /* Base class for our two separate cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            box-sizing: border-box;
+        }
+
+        /* BLOCK 1: Typing Workspace Card with proper padding */
+        .typing-card {
+            padding: 40px;
+        }
+
+        /* BLOCK 2: Leaderboard Card with proper padding */
+        .leaderboard-card {
+            padding: 40px 30px;
+        }
+
+        h1 {
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 24px;
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+        }
+
+        h1 span {
+            color: var(--accent);
+        }
+
+        .selector-group {
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select {
+            padding: 12px 16px;
+            font-size: 1rem;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+
+        select:focus {
+            border-color: var(--accent);
+        }
+
+        .sample-text {
+            font-family: 'Fira Code', monospace;
+            font-size: 1.15rem;
+            line-height: 1.7;
+            margin-bottom: 24px;
+            color: var(--text-main);
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+            text-align: left;
+            word-wrap: break-word;
+        }
+
+        textarea {
+            width: 100%;
+            height: 140px;
+            font-family: 'Fira Code', monospace;
+            font-size: 1.1rem;
+            padding: 16px;
+            box-sizing: border-box;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 173, 181, 0.15);
+        }
+
+        .stats-wrapper {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            text-align: center;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 16px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        button {
+            padding: 12px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            background-color: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Leaderboard Content Styling */
+        .leaderboard-card h2 {
+            font-size: 1.25rem;
+            margin-top: 0;
+            margin-bottom: 24px;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .score-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .score-table th, .score-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .score-table th {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .score-table td {
+            font-size: 0.85rem;
+        }
+
+        .score-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .score-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.01);
+        }
+
+        /* Mobile & Tablet responsiveness */
+        @media (max-width: 950px) {
+            .app-layout {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            .typing-card, .leaderboard-card {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-layout">
+    <div class="card typing-card">
+        <h1>Typing<span>Master</span></h1>
+        
+        <div class="selector-group">
+            <label for="para-select">Select Lesson</label>
+            <select id="para-select" onchange="changeParagraph()">
+                {% for key, item in paragraphs.items %}
+                    <option value="{{ item.text }}" data-title="{{ item.title }}">{{ item.title }} [{{ item.difficulty }}]</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <p class="sample-text" id="target-text"></p>
+        
+        <textarea id="input-field" placeholder="Click here and start typing to begin the test..."></textarea>
+        
+        <div class="stats-wrapper">
+            <div class="stat-card">
+                <div class="stat-label">Speed</div>
+                <div class="stat-value"><span id="wpm">0</span> <span style="font-size: 0.85rem; color: var(--text-main);">WPM</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Accuracy</div>
+                <div class="stat-value"><span id="accuracy">100</span><span style="font-size: 0.85rem; color: var(--text-main);">%</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Time</div>
+                <div class="stat-value"><span id="timer">0</span><span style="font-size: 0.85rem; color: var(--text-main);">s</span></div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button onclick="resetTest()">Restart</button>
+        </div>
+    </div>
+
+    <div class="card leaderboard-card">
+        <h2>🏆 Leaderboard</h2>
+        {% if high_scores %}
+            <table class="score-table">
+                <thead>
+                    <tr>
+                        <th>Lesson</th>
+                        <th>WPM</th>
+                        <th>Acc</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for score in high_scores %}
+                        <tr>
+                            <td>
+                                <strong style="display: block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ score.paragraph_title }}">
+                                    {{ score.paragraph_title }}
+                                </strong>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">{{ score.date_played|date:"M d, H:i" }}</span>
+                            </td>
+                            <td style="color: var(--accent); font-weight: bold; vertical-align: middle;">{{ score.wpm }}</td>
+                            <td style="vertical-align: middle;">{{ score.accuracy }}%</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin: 0;">No high scores saved yet. Complete a test to register your first score!</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    const paraSelect = document.getElementById('para-select');
+    const targetTextDisplay = document.getElementById('target-text');
+    const inputField = document.getElementById('input-field');
+    const wpmDisplay = document.getElementById('wpm');
+    const accuracyDisplay = document.getElementById('accuracy');
+    const timerDisplay = document.getElementById('timer');
+
+    let currentTargetText = "";
+    let startTime;
+    let timerInterval;
+    let isTestRunning = false;
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function init() {
+        changeParagraph();
+    }
+
+    function changeParagraph() {
+        resetTest();
+        currentTargetText = paraSelect.value;
+        targetTextDisplay.innerText = currentTargetText;
+    }
+
+    inputField.addEventListener('input', () => {
+        if (!isTestRunning && inputField.value.length > 0) {
+            isTestRunning = true;
+            startTime = new Date();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        const typedText = inputField.value;
+        
+        let correctChars = 0;
+        const minLength = Math.min(typedText.length, currentTargetText.length);
+        
+        for (let i = 0; i < minLength; i++) {
+            if (typedText[i] === currentTargetText[i]) {
+                correctChars++;
+            }
+        }
+        
+        const accuracy = typedText.length > 0 ? Math.round((correctChars / typedText.length) * 100) : 100;
+        accuracyDisplay.innerText = accuracy;
+
+        if (typedText === currentTargetText) {
+            clearInterval(timerInterval);
+            inputField.disabled = true;
+            
+            const finalWpm = wpmDisplay.innerText;
+            const finalAccuracy = accuracy;
+            const selectedOption = paraSelect.options[paraSelect.selectedIndex];
+            const paragraphTitle = selectedOption.getAttribute('data-title');
+
+            saveScoreToDatabase(paragraphTitle, finalWpm, finalAccuracy);
+        }
+    });
+
+    function saveScoreToDatabase(title, wpm, accuracy) {
+        const csrfToken = getCookie('csrftoken');
+        
+        fetch('/save-score/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                paragraph_title: title,
+                wpm: wpm,
+                accuracy: accuracy
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert(`Excellent! Score saved successfully.\nYour stats: ${wpm} WPM | ${accuracy}% Accuracy.`);
+                window.location.reload();
+            } else {
+                alert('Error saving score to database.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    function updateTimer() {
+        const timeElapsed = Math.floor((new Date() - startTime) / 1000);
+        timerDisplay.innerText = timeElapsed;
+
+        const typedLength = inputField.value.length;
+        if (timeElapsed > 0 && typedLength > 0) {
+            const wpm = Math.round((typedLength / 5) / (timeElapsed / 60));
+            wpmDisplay.innerText = wpm;
+        }
+    }
+
+    function resetTest() {
+        clearInterval(timerInterval);
+        isTestRunning = false;
+        inputField.value = "";
+        inputField.disabled = false;
+        wpmDisplay.innerText = "0";
+        accuracyDisplay.innerText = "100";
+        timerDisplay.innerText = "0";
+        inputField.focus();
+    }
+
+    window.onload = init;
+</script>
+
+</body>
+</html>
