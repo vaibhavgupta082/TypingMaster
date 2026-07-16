@@ -3,6 +3,8 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from .models import TypingScore
+from .models import TypingRoom , RoomPlayer
+
 
 PARAGRAPHS = {
     "1": {
@@ -60,3 +62,91 @@ def save_score(request):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
             
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+
+
+
+def create_room(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        username = data.get('username', 'Host').strip() or "Host"
+        
+        # Ensure a session key exists
+        if not request.session.session_key:
+            request.session.create()
+        session_key = request.session.session_key
+
+        # Create room instance mapping owner session
+        room = TypingRoom.objects.create(owner_session=session_key)
+        # Add host as the first player
+        RoomPlayer.objects.create(room=room, username=username, session_key=session_key)
+
+        return JsonResponse({
+            'status': 'success',
+            'room_code': room.code,
+            'is_owner': True
+        })
+    return JsonResponse({'status': 'error'})
+
+def join_room(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        code = data.get('code', '').upper().strip()
+        username = data.get('username', 'Guest').strip() or "Guest"
+
+        if not request.session.session_key:
+            request.session.create()
+        session_key = request.session.session_key
+
+        try:
+            room = TypingRoom.objects.get(code=code)
+            
+            if room.is_started:
+                return JsonResponse({'status': 'error', 'message': 'Game already in progress.'})
+
+            # Add player if they aren't already registered in this room instance
+            if not RoomPlayer.objects.filter(room=room, session_key=session_key).exists():
+                RoomPlayer.objects.create(room=room, username=username, session_key=session_key)
+
+            is_owner = (room.owner_session == session_key)
+
+            return JsonResponse({
+                'status': 'success',
+                'room_code': room.code,
+                'is_owner': is_owner
+            })
+        except TypingRoom.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Invalid room code.'})
+            
+    return JsonResponse({'status': 'error'})
+
+def room_lobby_status(request, code):
+    """Polled by frontend every 1.5 seconds to track user updates & game start flags."""
+    try:
+        room = TypingRoom.objects.get(code=code)
+        players = list(room.players.values_list('username', flat=True))
+        return JsonResponse({
+            'status': 'success',
+            'players': players,
+            'is_started': room.is_started
+        })
+    except TypingRoom.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Room was destroyed.'})
+
+def start_challenge(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        code = data.get('code')
+        session_key = request.session.session_key
+
+        try:
+            room = TypingRoom.objects.get(code=code)
+            # Authorization check: only the room owner session can change start states
+            if room.owner_session == session_key:
+                room.is_started = True
+                room.save()
+                return JsonResponse({'status': 'success'})
+            return JsonResponse({'status': 'error', 'message': 'Unauthorized action.'})
+        except TypingRoom.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Room not found.'})
+            
+    return JsonResponse({'status': 'error'})
