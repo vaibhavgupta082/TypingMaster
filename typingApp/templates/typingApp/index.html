@@ -10,10 +10,18 @@
             --bg-color: #121214;
             --card-bg: #1e1e24;
             --text-main: #e0e0e6;
-            --text-muted: #75758a;
+            --text-muted: #646477;
             --accent: #00adb5;
             --accent-hover: #008f95;
             --border-color: #2d2d3d;
+            
+            /* Highlighting Color Tokens */
+            --char-correct: #4caf50;
+            --char-incorrect: #ff5252;
+            --char-bg-incorrect: rgba(255, 82, 82, 0.2);
+            
+            --btn-secondary: #3f3f52;
+            --btn-secondary-hover: #4e4e66;
         }
 
         body {
@@ -29,7 +37,6 @@
             box-sizing: border-box;
         }
 
-        /* The overall grid container holding the two separate blocks */
         .app-layout {
             display: grid;
             grid-template-columns: 1fr 380px;
@@ -39,7 +46,6 @@
             align-items: start;
         }
 
-        /* Base class for our two separate cards */
         .card {
             background: var(--card-bg);
             border-radius: 16px;
@@ -48,12 +54,10 @@
             box-sizing: border-box;
         }
 
-        /* BLOCK 1: Typing Workspace Card with proper padding */
         .typing-card {
             padding: 40px;
         }
 
-        /* BLOCK 2: Leaderboard Card with proper padding */
         .leaderboard-card {
             padding: 40px 30px;
         }
@@ -70,8 +74,14 @@
             color: var(--accent);
         }
 
-        .selector-group {
+        .config-row {
+            display: flex;
+            gap: 20px;
             margin-bottom: 24px;
+        }
+
+        .selector-group {
+            flex: 1;
             display: flex;
             flex-direction: column;
             gap: 8px;
@@ -104,16 +114,31 @@
 
         .sample-text {
             font-family: 'Fira Code', monospace;
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             line-height: 1.7;
             margin-bottom: 24px;
-            color: var(--text-main);
             background: rgba(0, 0, 0, 0.2);
-            padding: 20px;
+            padding: 24px;
             border-radius: 8px;
             border-left: 4px solid var(--accent);
             text-align: left;
             word-wrap: break-word;
+            user-select: none;
+        }
+
+        .char {
+            color: var(--text-muted);
+            transition: color 0.1s ease, background-color 0.1s ease;
+        }
+
+        .char.correct {
+            color: var(--char-correct);
+        }
+
+        .char.incorrect {
+            color: var(--char-incorrect);
+            background-color: var(--char-bg-incorrect);
+            border-radius: 3px;
         }
 
         textarea {
@@ -169,14 +194,14 @@
         .actions {
             display: flex;
             justify-content: flex-end;
+            gap: 12px;
             margin-top: 24px;
         }
 
         button {
-            padding: 12px 32px;
+            padding: 12px 28px;
             font-size: 1rem;
             font-weight: 600;
-            background-color: var(--accent);
             color: #fff;
             border: none;
             border-radius: 8px;
@@ -184,24 +209,27 @@
             transition: background-color 0.2s, transform 0.1s;
         }
 
-        button:hover {
+        .btn-primary {
+            background-color: var(--accent);
+        }
+
+        .btn-primary:hover {
             background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--btn-secondary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--btn-secondary-hover);
         }
 
         button:active {
             transform: scale(0.98);
         }
 
-        /* Leaderboard Content Styling */
-        .leaderboard-card h2 {
-            font-size: 1.25rem;
-            margin-top: 0;
-            margin-bottom: 24px;
-            color: var(--text-main);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 12px;
-        }
-
+        /* Leaderboard Table Styles */
         .score-table {
             width: 100%;
             border-collapse: collapse;
@@ -228,15 +256,40 @@
             border-bottom: none;
         }
 
-        .score-table tr:hover {
-            background-color: rgba(255, 255, 255, 0.01);
+        /* Modern Custom Modal Container */
+        .modal-overlay {
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(10, 10, 12, 0.85); 
+            backdrop-filter: blur(4px);
+            z-index: 1000; 
+            justify-content: center; 
+            align-items: center;
         }
 
-        /* Mobile & Tablet responsiveness */
+        .modal-box {
+            background: var(--card-bg); 
+            padding: 40px; 
+            border-radius: 16px; 
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            text-align: center; 
+            max-width: 420px; 
+            width: 90%;
+        }
+
         @media (max-width: 950px) {
             .app-layout {
                 grid-template-columns: 1fr;
                 gap: 24px;
+            }
+            .config-row {
+                flex-direction: column;
+                gap: 16px;
             }
             .typing-card, .leaderboard-card {
                 padding: 30px 20px;
@@ -250,13 +303,27 @@
     <div class="card typing-card">
         <h1>Typing<span>Master</span></h1>
         
-        <div class="selector-group">
-            <label for="para-select">Select Lesson</label>
-            <select id="para-select" onchange="changeParagraph()">
-                {% for key, item in paragraphs.items %}
-                    <option value="{{ item.text }}" data-title="{{ item.title }}">{{ item.title }} [{{ item.difficulty }}]</option>
-                {% endfor %}
-            </select>
+        <div class="config-row">
+            <div class="selector-group">
+                <label for="para-select">Select Lesson</label>
+                <select id="para-select" onchange="changeParagraph()">
+                    {% for key, item in paragraphs.items %}
+                        <option value="{{ item.text }}" data-title="{{ item.title }}">{{ item.title }} [{{ item.difficulty }}]</option>
+                    {% empty %}
+                        <option value="">No Lessons Found</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="selector-group">
+                <label for="time-select">Time Limit</label>
+                <select id="time-select" onchange="resetTest()">
+                    <option value="none" selected>No Limit (Count Up)</option>
+                    <option value="15">15 Seconds</option>
+                    <option value="30">30 Seconds</option>
+                    <option value="60">60 Seconds</option>
+                </select>
+            </div>
         </div>
         
         <p class="sample-text" id="target-text"></p>
@@ -279,12 +346,13 @@
         </div>
         
         <div class="actions">
-            <button onclick="resetTest()">Restart</button>
+            <button id="mute-btn" class="btn-secondary" onclick="toggleMute()">🔊 Sound: On</button>
+            <button class="btn-primary" onclick="resetTest()">Restart</button>
         </div>
     </div>
 
     <div class="card leaderboard-card">
-        <h2>🏆 Leaderboard</h2>
+        <h2 style="font-size: 1.25rem; margin-top: 0; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">🏆 Leaderboard</h2>
         {% if high_scores %}
             <table class="score-table">
                 <thead>
@@ -315,18 +383,69 @@
     </div>
 </div>
 
+<div id="results-modal" class="modal-overlay">
+    <div class="modal-box">
+        <h2 id="result-status" style="margin-top: 0; font-size: 1.75rem;">Test Complete!</h2>
+        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 16px 0;">
+        <div style="font-size: 3.5rem; margin: 16px 0; font-weight: 700; color: var(--accent);" id="modal-wpm">0 WPM</div>
+        <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 30px;">
+            Accuracy Performance: <span id="modal-accuracy" style="color: var(--text-main); font-weight: 600;">0</span>%
+        </p>
+        <button class="btn-primary" style="width: 100%; padding: 14px;" onclick="closeModal()">Close & Practice</button>
+    </div>
+</div>
+
 <script>
     const paraSelect = document.getElementById('para-select');
+    const timeSelect = document.getElementById('time-select');
     const targetTextDisplay = document.getElementById('target-text');
     const inputField = document.getElementById('input-field');
     const wpmDisplay = document.getElementById('wpm');
     const accuracyDisplay = document.getElementById('accuracy');
     const timerDisplay = document.getElementById('timer');
+    const muteBtn = document.getElementById('mute-btn');
+    const resultsModal = document.getElementById('results-modal');
 
     let currentTargetText = "";
     let startTime;
     let timerInterval;
     let isTestRunning = false;
+    let timeLimit = 0; 
+
+    let audioCtx = null;
+    let isMuted = false;
+
+    function playClickSound() {
+        if (isMuted) return;
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(750, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(250, audioCtx.currentTime + 0.04);
+
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.04);
+    }
+
+    function toggleMute() {
+        isMuted = !isMuted;
+        muteBtn.innerText = isMuted ? "🔇 Sound: Muted" : "🔊 Sound: On";
+        if (!isMuted) playClickSound();
+        inputField.focus();
+    }
 
     function getCookie(name) {
         let cookieValue = null;
@@ -350,46 +469,111 @@
     function changeParagraph() {
         resetTest();
         currentTargetText = paraSelect.value;
-        targetTextDisplay.innerText = currentTargetText;
+        if (!currentTargetText) return; // Safeguard if list array mapping evaluates empty
+        
+        targetTextDisplay.innerHTML = "";
+        currentTargetText.split("").forEach(char => {
+            const span = document.createElement('span');
+            span.classList.add('char');
+            span.innerText = char;
+            targetTextDisplay.appendChild(span);
+        });
     }
 
+    inputField.addEventListener('keydown', (e) => {
+        if (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Enter') {
+            playClickSound();
+        }
+    });
+
     inputField.addEventListener('input', () => {
+        if (!currentTargetText) return;
+        
         if (!isTestRunning && inputField.value.length > 0) {
             isTestRunning = true;
             startTime = new Date();
+            const selectedTime = timeSelect.value;
+            timeLimit = selectedTime === 'none' ? 0 : parseInt(selectedTime);
             timerInterval = setInterval(updateTimer, 1000);
         }
 
         const typedText = inputField.value;
-        
+        const charSpans = targetTextDisplay.querySelectorAll('.char');
         let correctChars = 0;
-        const minLength = Math.min(typedText.length, currentTargetText.length);
-        
-        for (let i = 0; i < minLength; i++) {
-            if (typedText[i] === currentTargetText[i]) {
+
+        charSpans.forEach((span, index) => {
+            const userChar = typedText[index];
+            if (userChar == null) {
+                span.classList.remove('correct', 'incorrect');
+            } else if (userChar === span.innerText) {
+                span.classList.add('correct');
+                span.classList.remove('incorrect');
                 correctChars++;
+            } else {
+                span.classList.add('incorrect');
+                span.classList.remove('correct');
             }
-        }
+        });
         
         const accuracy = typedText.length > 0 ? Math.round((correctChars / typedText.length) * 100) : 100;
         accuracyDisplay.innerText = accuracy;
 
         if (typedText === currentTargetText) {
-            clearInterval(timerInterval);
-            inputField.disabled = true;
-            
-            const finalWpm = wpmDisplay.innerText;
-            const finalAccuracy = accuracy;
-            const selectedOption = paraSelect.options[paraSelect.selectedIndex];
-            const paragraphTitle = selectedOption.getAttribute('data-title');
-
-            saveScoreToDatabase(paragraphTitle, finalWpm, finalAccuracy);
+            handleTestCompletion(accuracy, true);
         }
     });
 
+    function updateTimer() {
+        if (!isTestRunning) return;
+        const timeElapsed = Math.floor((new Date() - startTime) / 1000);
+        const typedLength = inputField.value.length;
+
+        if (timeLimit > 0) {
+            const timeRemaining = timeLimit - timeElapsed;
+            if (timeRemaining <= 0) {
+                timerDisplay.innerText = "0";
+                const finalWpm = timeLimit > 0 && typedLength > 0 ? Math.round((typedLength / 5) / (timeLimit / 60)) : 0;
+                wpmDisplay.innerText = finalWpm;
+                handleTestCompletion(parseInt(accuracyDisplay.innerText), false);
+                return;
+            }
+            timerDisplay.innerText = timeRemaining;
+        } else {
+            timerDisplay.innerText = timeElapsed;
+        }
+
+        if (timeElapsed > 0 && typedLength > 0) {
+            const wpm = Math.round((typedLength / 5) / (timeElapsed / 60));
+            wpmDisplay.innerText = wpm;
+        }
+    }
+
+    function handleTestCompletion(finalAccuracy, isComplete) {
+        clearInterval(timerInterval);
+        isTestRunning = false;
+        inputField.disabled = true;
+        
+        const finalWpm = wpmDisplay.innerText;
+        const selectedOption = paraSelect.options[paraSelect.selectedIndex];
+        const paragraphTitle = selectedOption ? selectedOption.getAttribute('data-title') : "Lesson";
+
+        const statusHeading = document.getElementById('result-status');
+        if (isComplete) {
+            statusHeading.innerText = "🎉 Test Complete!";
+            statusHeading.style.color = "var(--char-correct)";
+            saveScoreToDatabase(paragraphTitle, finalWpm, finalAccuracy);
+        } else {
+            statusHeading.innerText = "⏳ Time's Up - Incomplete";
+            statusHeading.style.color = "var(--char-incorrect)";
+        }
+
+        document.getElementById('modal-wpm').innerText = `${finalWpm} WPM`;
+        document.getElementById('modal-accuracy').innerText = finalAccuracy;
+        resultsModal.style.display = 'flex';
+    }
+
     function saveScoreToDatabase(title, wpm, accuracy) {
         const csrfToken = getCookie('csrftoken');
-        
         fetch('/save-score/', {
             method: 'POST',
             headers: {
@@ -402,29 +586,12 @@
                 accuracy: accuracy
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert(`Excellent! Score saved successfully.\nYour stats: ${wpm} WPM | ${accuracy}% Accuracy.`);
-                window.location.reload();
-            } else {
-                alert('Error saving score to database.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+        .catch(error => console.error('Error saving records:', error));
     }
 
-    function updateTimer() {
-        const timeElapsed = Math.floor((new Date() - startTime) / 1000);
-        timerDisplay.innerText = timeElapsed;
-
-        const typedLength = inputField.value.length;
-        if (timeElapsed > 0 && typedLength > 0) {
-            const wpm = Math.round((typedLength / 5) / (timeElapsed / 60));
-            wpmDisplay.innerText = wpm;
-        }
+    function closeModal() {
+        resultsModal.style.display = 'none';
+        window.location.reload(); 
     }
 
     function resetTest() {
@@ -434,7 +601,13 @@
         inputField.disabled = false;
         wpmDisplay.innerText = "0";
         accuracyDisplay.innerText = "100";
-        timerDisplay.innerText = "0";
+        
+        const selectedTime = timeSelect.value;
+        timerDisplay.innerText = selectedTime === 'none' ? "0" : selectedTime;
+        
+        const charSpans = targetTextDisplay.querySelectorAll('.char');
+        charSpans.forEach(span => span.classList.remove('correct', 'incorrect'));
+        
         inputField.focus();
     }
 
