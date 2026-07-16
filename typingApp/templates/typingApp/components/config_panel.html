@@ -1,0 +1,21 @@
+<div class="config-row" id="game-config-settings">
+    <div class="selector-group">
+        <label for="para-select">Select Lesson</label>
+        <select id="para-select" onchange="changeParagraph()">
+            {% for key, item in paragraphs.items %}
+                <option value="{{ item.text }}" data-title="{{ item.title }}">{{ item.title }} [{{ item.difficulty }}]</option>
+            {% empty %}
+                <option value="">No Lessons Found</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="selector-group">
+        <label for="time-select">Time Limit</label>
+        <select id="time-select" onchange="resetTest()">
+            <option value="none" selected>No Limit (Count Up)</option>
+            <option value="15">15 Seconds</option>
+            <option value="30">30 Seconds</option>
+            <option value="60">60 Seconds</option>
+        </select>
+    </div>
+</div>

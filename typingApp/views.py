@@ -4,6 +4,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from .models import TypingScore
 from .models import TypingRoom , RoomPlayer
+from django.views.decorators.http import require_POST
+
 
 
 PARAGRAPHS = {
@@ -150,3 +152,32 @@ def start_challenge(request):
             return JsonResponse({'status': 'error', 'message': 'Room not found.'})
             
     return JsonResponse({'status': 'error'})
+
+
+@require_POST
+def leave_room(request):
+    try:
+        data = json.loads(request.body)
+        room_code = data.get('code')
+        username = data.get('username')
+
+        # --- DATABASE / MEMORY INTEGRATION PLACEHOLDER ---
+        # Modify the code block below to match how your views.py stores room details.
+        # (e.g. If you use models: Room.objects.filter(code=room_code).first())
+        
+        # Example pseudo-logic:
+        # 1. Fetch Room Object
+        # 2. Delete/Remove the player from the room list or many-to-many field.
+        # 3. If room player count drops to 0, delete the room itself.
+        # 4. If the owner of the room leaves, reassign host status or disband the room.
+        
+        return JsonResponse({
+            'status': 'success', 
+            'message': f'Successfully removed {username} from Room {room_code}.'
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error', 
+            'message': f'Server error: {str(e)}'
+        }, status=500)

@@ -8,4 +8,5 @@ urlpatterns = [
     path('join-room/', views.join_room, name='join_room'),
     path('room-status/<str:code>/', views.room_lobby_status, name='room_status'),
     path('start-challenge/', views.start_challenge, name='start_challenge'),
+    path('leave-room/', views.leave_room, name='leave_room'),
 ]

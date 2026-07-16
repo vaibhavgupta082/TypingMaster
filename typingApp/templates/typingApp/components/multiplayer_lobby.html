@@ -1,0 +1,35 @@
+<div style="background: rgba(0, 0, 0, 0.2); border: 1px dashed var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+    <label style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 12px;">
+        🎯 Select Game Mode
+    </label>
+    
+    <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+        <button id="mode-single-btn" class="btn-primary" style="flex: 1; padding: 12px;" onclick="switchMode('single')">👤 Practice Alone</button>
+        <button id="mode-multi-btn" class="btn-secondary" style="flex: 1; padding: 12px;" onclick="switchMode('multi')">⚔️ Multiplayer Arena</button>
+    </div>
+
+    <div id="multiplayer-controls-container" style="display: none; border-top: 1px solid var(--border-color); padding-top: 16px;">
+        <div id="lobby-setup-controls">
+            <div style="display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
+                <input type="text" id="player-nickname-input" placeholder="Enter Your Nickname" style="flex: 1; min-width: 160px;">
+                <input type="text" id="join-code-input" placeholder="Room Code" style="width: 140px; text-transform: uppercase;">
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn-secondary" style="flex: 1; padding: 10px;" onclick="handleCreateRoom()">Create Room</button>
+                <button class="btn-primary" style="flex: 1; padding: 10px;" onclick="handleJoinRoom()">Join Room</button>
+            </div>
+        </div>
+
+        <div id="lobby-active-dashboard" style="display: none; padding: 12px; background: var(--bg-color); border-radius: 8px; border: 1px solid var(--accent); text-align: center;">
+            <span style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-bottom: 4px;">ACTIVE ROOM CODE:</span>
+            <strong id="current-room-code-txt" style="font-size: 2rem; color: var(--accent); letter-spacing: 2px; display: block; margin-bottom: 12px;">XXXXXX</strong>
+            
+            <label style="display: block; font-size: 0.75rem; margin-bottom: 6px; text-align: left;">Players In Lobby:</label>
+            <div id="lobby-players-roster" style="margin-bottom: 16px; text-align: left;"></div>
+
+            <div id="lobby-management-interaction"></div>
+
+            <button class="btn-secondary" style="width: 100%; padding: 10px; margin-top: 8px;" onclick="handleLeaveRoom()">🚪 Leave Room</button>
+        </div>
+    </div>
+</div>

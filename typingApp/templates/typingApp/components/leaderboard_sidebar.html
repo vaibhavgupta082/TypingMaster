@@ -1,0 +1,28 @@
+<div class="card leaderboard-card">
+    <h2 style="font-size: 1.25rem; margin-top: 0; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">🏆 Practice High Scores</h2>
+    {% if high_scores %}
+        <table class="score-table">
+            <thead>
+                <tr>
+                    <th>Lesson</th>
+                    <th>WPM</th>
+                    <th>Acc</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for score in high_scores %}
+                    <tr>
+                        <td>
+                            <strong style="display: block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ score.paragraph_title }}">{{ score.paragraph_title }}</strong>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">{{ score.date_played|date:"M d, H:i" }}</span>
+                        </td>
+                        <td style="color: var(--accent); font-weight: bold;">{{ score.wpm }}</td>
+                        <td>{{ score.accuracy }}%</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">No single player records found.</p>
+    {% endif %}
+</div>
